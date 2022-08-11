@@ -1,6 +1,5 @@
 <template>
   <WordleLite 
-    msg="Welcome to WordleLite"
     :guesses-allowed=5
     :word-length=4
   />

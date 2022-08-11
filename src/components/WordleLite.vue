@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ this.msg }}
+    Welcome to WordleLite!
   </div>
 
   <div 
@@ -14,6 +14,10 @@
       </div>
     </template>
   </div>
+
+  <output>
+    {{ this.message }}
+  </output>
 </template>
 
 <script>
@@ -23,39 +27,72 @@ import Tile from './Tile.js';
 export default {
   name: 'WordleLite',
   props: {
-    msg: String,
+    name: String,
     guessesAllowed: Number,
     wordLength: Number,
   },
-  methods: {
-    onKeyPress: function(key) {
-      if (/^[A-z]$/.test(key) && this.rowIndex <= this.guessesAllowed-1) { 
-        // [this.tileIndex].letter = key;
-        
-        for (let tile of this.currentRow()) {
-          if (!tile.letter) {
-            tile.fill(key);
-            break;
-          }
-        }
-
-        if (this.tileIndex === this.wordLength-1) {
-          this.rowIndex++;
-          this.tileIndex = 0;
-        } else {
-          this.tileIndex++;
-        }
-      }
-    },
-    currentRow: function() {
-      return this.board[this.rowIndex];
-    }
-  },
+  
   data() {
     return {
       board: [],
       rowIndex: 0,
       tileIndex: 0,
+      theWord: "bird",
+      gameState: "active", // active, complete
+      message: "",
+    }
+  },
+
+  methods: {
+
+    onKeyPress: function(key) {
+      if (/^[A-z]$/.test(key) && this.rowIndex <= this.guessesAllowed-1) { 
+        this.fillTile(key);
+      } else if (key == "Enter") {
+        this.submitGuess();
+      }
+    },
+
+    fillTile: function(key) {
+      this.currentTile.fill(key);
+    },
+
+    submitGuess: function() {
+      let guess = this.currentGuess;
+
+      if (guess.length < this.wordLength) {
+        return
+      }
+
+      if (guess == this.theWord) {
+        this.message = "You Win!";
+      } else if (this.rowIndex == this.guessesAllowed-1) {
+        this.message = "Game Over.";
+        this.gameState = "complete";
+      } else {
+        this.message = "Incorrect!";
+        this.rowIndex++;
+      }
+    },
+
+  },
+
+  computed: {
+    currentRow() {
+      return this.board[this.rowIndex];
+    },
+
+    currentTile() {
+      for (let tile of this.currentRow) {
+        if (!tile.letter) {
+          return tile;
+        }
+      }
+      return "No current tile"
+    },
+
+    currentGuess() {
+      return this.currentRow.map(tile => tile.letter).join("");
     }
   },
   mounted() {
