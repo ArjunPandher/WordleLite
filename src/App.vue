@@ -1,7 +1,6 @@
 <template>
   <WordleLite 
     :guesses-allowed=5
-    :word-length=4
   />
 </template>
 
@@ -17,6 +16,13 @@ export default {
 </script>
 
 <style>
+
+html, body {
+  background-color: #101010;
+  height: 100%;
+  margin: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

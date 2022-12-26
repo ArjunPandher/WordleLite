@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="title">
     Welcome to WordleLite!
   </div>
 
@@ -9,7 +9,7 @@
     <template v-for="row in board" :key="row">
       <div class="row">
         <template v-for="tile in row" :key="tile">
-          <div class="tile">{{ tile.letter }}</div>
+          <div class="tile" :class="[tile.status]">{{ tile.letter }}</div>
         </template>
       </div>
     </template>
@@ -29,7 +29,6 @@ export default {
   props: {
     name: String,
     guessesAllowed: Number,
-    wordLength: Number,
   },
   
   data() {
@@ -43,67 +42,86 @@ export default {
     }
   },
 
-  methods: {
-
-    onKeyPress: function(key) {
-      if (/^[A-z]$/.test(key) && this.rowIndex <= this.guessesAllowed-1) { 
-        this.fillTile(key);
-      } else if (key == "Enter") {
-        this.submitGuess();
-      }
-    },
-
-    fillTile: function(key) {
-      this.currentTile.fill(key);
-    },
-
-    submitGuess: function() {
-      let guess = this.currentGuess;
-
-      if (guess.length < this.wordLength) {
-        return
-      }
-
-      if (guess == this.theWord) {
-        this.message = "You Win!";
-      } else if (this.rowIndex == this.guessesAllowed-1) {
-        this.message = "Game Over.";
-        this.gameState = "complete";
-      } else {
-        this.message = "Incorrect!";
-        this.rowIndex++;
-      }
-    },
-
-  },
-
   computed: {
     currentRow() {
       return this.board[this.rowIndex];
     },
 
-    currentTile() {
-      for (let tile of this.currentRow) {
-        if (!tile.letter) {
-          return tile;
-        }
-      }
-      return "No current tile"
-    },
-
     currentGuess() {
       return this.currentRow.map(tile => tile.letter).join("");
+    },
+
+    remainingGuesses() {
+      return this.guessesAllowed - this.rowIndex - 1;
     }
   },
+
   mounted() {
     this.board = Array.from({ length: this.guessesAllowed }, () => 
-        Array.from({ length: this.wordLength }, () => new Tile('', 'INCORRECT'))
+        Array.from({ length: this.theWord.length }, () => new Tile('', 'default'))
       );
 
     document.addEventListener('keyup', (e) => {
       this.onKeyPress(e.key);
     })
-  }
+  },
+
+  methods: {
+    onKeyPress: function(key) {
+      this.message = ""
+
+      // check if entered key is an alphanumeric
+      if (/^[A-z]$/.test(key) && this.rowIndex <= this.guessesAllowed-1) { 
+        this.fillTile(key);
+      } else if (key == "Enter") {
+        this.submitGuess();
+      } else if (key == "Backspace") {
+        this.emptyTile();
+      }
+    },
+
+    fillTile: function(letter) {
+      for (let tile of this.currentRow) {
+        if (!tile.letter) {
+          tile.fill(letter);
+          return;
+        }
+      }
+    },
+
+    emptyTile: function() {
+      for (let tile of [...this.currentRow].reverse()) {
+        if (tile.letter) {
+          tile.empty();
+          return;
+        }
+      }
+    },
+
+    submitGuess: function() {
+      if (this.currentGuess.length < this.theWord.length) {
+        return
+      }
+
+      // validate each letter in the guess
+      for (let tile of this.currentRow) {
+        tile.validate(this.currentGuess, this.theWord);
+      }
+
+      if (this.currentGuess == this.theWord) {
+        this.gameState = "complete";
+        return this.message = "You Win!";
+      }
+      if (this.remainingGuesses == 0) {
+        this.gameState = "complete";
+        return this.message = "Game Over.";
+      }
+
+      this.message = "Incorrect!";
+      this.rowIndex++;
+    }
+
+  },
 }
 
 </script>
@@ -120,23 +138,39 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  outline: 2px black;
+  outline: 2px whitesmoke;
   outline-style: solid;
-  background-color: rebeccapurple;
+  background-color: #101010;
+  color: whitesmoke;
 }
 
-h3 {
-  margin: 40px 0 0;
+.tile.absent {
+  background-color: grey;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.tile.present {
+  background-color: yellow;
+  color: black;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.tile.correct {
+  background-color: green;
 }
-a {
-  color: #42b983;
+
+output {
+  font-size: 1.5rem;
+  text-align: center;
+  display: block;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  color: whitesmoke;
 }
+
+#title {
+  font-size: 1.3rem;
+  color: whitesmoke;
+  margin-bottom: 1rem;
+}
+
 </style>
