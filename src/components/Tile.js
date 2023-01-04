@@ -1,7 +1,7 @@
 export default class Tile {
   constructor(letter, status) {
     this.letter = letter;
-    this.status = status; // one of absent, present, correct
+    this.status = status; // one of absent, present, correct, default, empty
   }
 
   validate(currentGuess, theWord) {
@@ -14,10 +14,12 @@ export default class Tile {
 
   fill(key) {
     this.letter = key.toLowerCase();
+    this.status = 'default';
   }
 
   empty() {
     this.letter = '';
+    this.status = 'empty';
   }
 }
 

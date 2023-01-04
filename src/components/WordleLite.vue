@@ -6,8 +6,8 @@
   <div 
     id="game"
   >
-    <template v-for="row in board" :key="row">
-      <div class="row">
+    <template v-for="(row, index) in board" :key="row">
+      <div class="row" :class="{current: index==this.rowIndex}">
         <template v-for="tile in row" :key="tile">
           <div class="tile" :class="[tile.status]">{{ tile.letter }}</div>
         </template>
@@ -58,7 +58,7 @@ export default {
 
   mounted() {
     this.board = Array.from({ length: this.guessesAllowed }, () => 
-        Array.from({ length: this.theWord.length }, () => new Tile('', 'default'))
+        Array.from({ length: this.theWord.length }, () => new Tile('', 'empty'))
       );
 
     document.addEventListener('keyup', (e) => {
@@ -127,44 +127,96 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<!-- <style scoped>
 .row {
   display: flex;
+  justify-content: center;
+}
+
+.row.current .tile:empty:first-of-type {
+  animation: fade 2s;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fade {
+  50% {
+      background: rgba(255, 255, 255, .05)
+  }
 }
 
 .tile {
-  width: 75px;
-  height: 75px;
+  outline: 1px solid rgba(73, 110, 158, 0.1);
+  width: 100%;
+  height: 100px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  outline: 2px whitesmoke;
-  outline-style: solid;
-  background-color: #101010;
-  color: whitesmoke;
+  justify-content: center;
+  font-size: 50px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #496e9e;
 }
 
-.tile.absent {
-  background-color: grey;
-}
-
-.tile.present {
-  background-color: yellow;
-  color: black;
+.row.invalid .tile, .tile.invalid {
+  color: var(--invalid-color);
+  text-shadow: 0 0 12px rgba(246, 38, 38, 0.42);
 }
 
 .tile.correct {
-  background-color: green;
+  color: var(--correct-color);
+  text-shadow: 0 0 12px rgba(38, 246, 110, 0.42);
+}
+
+.tile.present {
+  color: var(--present-color);
+  text-shadow: 0 0 12px rgba(246, 171, 38, 0.42);
+}
+
+#keyboard {
+  margin-top: 2rem;
+}
+
+.key.correct {
+  background: var(--correct-color);
+}
+
+.key.present {
+  background: var(--present-color);
+}
+
+.key.absent {
+  background: var(--absent-color);
+}
+
+.key {
+  background: #c5c5c5;
+  border: 0;
+  margin: 2px;
+  height: 50px;
+  min-width: 40px;
+  border-radius: 4px;
+}
+
+header {
+  position: relative;
 }
 
 output {
-  font-size: 1.5rem;
-  text-align: center;
   display: block;
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  color: whitesmoke;
+  font-weight: 500;
+  font-style: italic;
+  font-size: 17px;
+  margin-top: 1rem;
+  position: absolute;
+  top: 0;
+  right: -1.5rem;
+  width: 150px;
+}
+
+output:empty {
+  display: none;
+  color: #496e9e;
 }
 
 #title {
@@ -173,4 +225,4 @@ output {
   margin-bottom: 1rem;
 }
 
-</style>
+</style> -->
