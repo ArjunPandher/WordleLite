@@ -54,7 +54,7 @@ margin-bottom: 1rem;
     justify-content: center;
 }
 
-.row.current .empty:first-of-type {
+.row.current .tile.empty:first-of-type {
     animation: fade 2s;
     animation-fill-mode: both;
     animation-iteration-count: infinite;
