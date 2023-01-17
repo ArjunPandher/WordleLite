@@ -37,7 +37,7 @@ export default {
       board: [],
       rowIndex: 0,
       tileIndex: 0,
-      theWord: "bird",
+      theWord: "babe",
       gameState: "active", // active, complete
       message: "",
       error: false,
@@ -60,8 +60,9 @@ export default {
 
   mounted() {
     this.board = Array.from({ length: this.guessesAllowed }, () => 
-        Array.from({ length: this.theWord.length }, () => new Tile('', 'empty'))
+        Array.from({ length: this.theWord.length }, (item, index) => new Tile('', 'empty', index))
       );
+    console.log(this.board);
 
     document.addEventListener('keyup', (e) => {
       this.onKeyPress(e.key);
@@ -102,19 +103,16 @@ export default {
     },
 
     submitGuess: function() {
-      if (this.currentGuess.length < this.theWord.length) {
-        return
-      }
+      if (this.currentGuess.length < this.theWord.length) return;
 
-      // validate each letter in the guess
-      for (let tile of this.currentRow) {
-        tile.validate(this.currentGuess, this.theWord);
-      }
-
+      // check if the word is valid
       if (!words.has(this.currentGuess)) {
         this.error = true;
         return this.message = "Invalid Word!";
       }
+
+      // validate each letter in the guess
+      Tile.validateRow(this.currentRow, this.theWord);
 
       if (this.currentGuess == this.theWord) {
         this.gameState = "complete";
