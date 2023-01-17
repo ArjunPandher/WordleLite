@@ -7,7 +7,7 @@
     id="game"
   >
     <template v-for="(row, index) in board" :key="row">
-      <div class="row" :class="{current: index==this.rowIndex}">
+      <div class="row" :class="{current: index==this.rowIndex, invalid: index==this.rowIndex && this.error}">
         <template v-for="tile in row" :key="tile">
           <div class="tile" :class="[tile.status]">{{ tile.letter }}</div>
         </template>
@@ -23,6 +23,7 @@
 <script>
 
 import Tile from './Tile.js';
+import words from '../assets/words.js';
 
 export default {
   name: 'WordleLite',
@@ -39,6 +40,7 @@ export default {
       theWord: "bird",
       gameState: "active", // active, complete
       message: "",
+      error: false,
     }
   },
 
@@ -69,6 +71,7 @@ export default {
   methods: {
     onKeyPress: function(key) {
       this.message = ""
+      this.error = false;
 
       // check if entered key is an alphanumeric
       if (/^[A-z]$/.test(key) && this.rowIndex <= this.guessesAllowed-1) { 
@@ -106,6 +109,11 @@ export default {
       // validate each letter in the guess
       for (let tile of this.currentRow) {
         tile.validate(this.currentGuess, this.theWord);
+      }
+
+      if (!words.has(this.currentGuess)) {
+        this.error = true;
+        return this.message = "Invalid Word!";
       }
 
       if (this.currentGuess == this.theWord) {
